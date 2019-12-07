@@ -38,7 +38,7 @@ public class GoodStuffMarket {
     // shop, customer
     /* 可不可以下單 */
     shop.createOrder(customer, MILK_001, 2);
-    shop.createOrder(customer, MILK_001, -2);
+    shop.createOrder(customer, MILK_002, 10);
     System.out.println("購買結果:" + shop.executeOrder(customer));
     /*List<String> orders =  customer.order();*/
   }

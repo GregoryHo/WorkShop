@@ -10,6 +10,10 @@ public class Customer implements Buyer {
 
   private final String id;
 
+  public String getId() {
+    return id;
+  }
+
   public Customer(String id) {
     this.id = id;
   }

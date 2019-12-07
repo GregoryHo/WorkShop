@@ -56,11 +56,16 @@ public abstract class Shop implements CustomObservable {
     notifier(new Request(productId, stock));
   }
 
-  public void preserveProduct(String productId, int stock) {
+  public void preserveProduct(Customer customer, String productId, int stock) {
     notifier(new Request(productId, -stock, new ExecutionCallback() {
       @Override public void onRetrieved(Product product, int remained) {
         System.out.println("[SUCCESS] Product: " + productId + ", remained: " + remained);
-        /* TODO: Vic Peng, create order */
+        /* TODO: Vic Peng, create flawless order */
+        List<Product> productList = getProductList(customer);
+        for (int i = 0; i < stock; i ++) {
+          productList.add(product);
+        }
+        orderList.put(customer, productList);
       }
 
       @Override public void onRetrievedFailed(Product product, int remained) {
@@ -69,8 +74,13 @@ public abstract class Shop implements CustomObservable {
     }));
   }
 
+  private List<Product> getProductList(Customer customer) {
+    List<Product> productList = orderList.get(customer);
+    return productList != null ? productList : new ArrayList<>();
+  }
+
   public boolean createOrder(Customer customer, String productId, int stock) {
-    preserveProduct(productId, stock);
+    preserveProduct(customer, productId, stock);
     return false;
   }
 
@@ -78,6 +88,21 @@ public abstract class Shop implements CustomObservable {
     List<Product> order = orderList.get(customer);
     /* TODO:
      * output product name/quantity/money */
+    final String customerName = customer.getId();
+    int totalPrice = 0;
+    Set<Product> products = new HashSet<>();
+    Map<Product, Integer> productAmountMap = new HashMap<>();
+    products.addAll(order);
+    for ( Product product : order ) {
+      if(productAmountMap.get(product)==null) {
+        
+      }
+      totalPrice += product.getUnitPrice();
+    }
+    for ( Product product: products ) {
+      System.out.println(customerName + " buys " + productAmountMap.get(product) + " of " + product.getName());
+    }
+    System.out.println(" for " + totalPrice + "  dollars");
     return order != null && !order.isEmpty();
   }
 }
