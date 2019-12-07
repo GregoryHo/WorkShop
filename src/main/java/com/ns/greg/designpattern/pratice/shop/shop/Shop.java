@@ -7,10 +7,8 @@ import com.ns.greg.designpattern.pratice.shop.customer.Customer;
 import com.ns.greg.designpattern.pratice.shop.product.Product;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author gregho
@@ -32,19 +30,23 @@ public abstract class Shop implements CustomObservable {
    * Custom observable functions
    *-------------------------------*/
 
-  @Override public void notifier() {
+  @Override
+  public void notifier() {
     notifier(null);
   }
 
-  @Override public void notifier(Object arg) {
+  @Override
+  public void notifier(Object arg) {
     warehouseList.forEach(it -> it.update(arg));
   }
 
-  @Override public void addObserver(CustomObserver customObserver) {
+  @Override
+  public void addObserver(CustomObserver customObserver) {
     warehouseList.add(customObserver);
   }
 
-  @Override public void deleteObserver(CustomObserver customObserver) {
+  @Override
+  public void deleteObserver(CustomObserver customObserver) {
     warehouseList.remove(customObserver);
   }
 
@@ -58,17 +60,19 @@ public abstract class Shop implements CustomObservable {
 
   public void preserveProduct(Customer customer, String productId, int stock) {
     notifier(new Request(productId, -stock, new ExecutionCallback() {
-      @Override public void onRetrieved(Product product, int remained) {
+      @Override
+      public void onRetrieved(Product product, int remained) {
         System.out.println("[SUCCESS] Product: " + productId + ", remained: " + remained);
         /* TODO: Vic Peng, create flawless order */
         List<Product> productList = getProductList(customer);
-        for (int i = 0; i < stock; i ++) {
+        for (int i = 0; i < stock; i++) {
           productList.add(product);
         }
         orderList.put(customer, productList);
       }
 
-      @Override public void onRetrievedFailed(Product product, int remained) {
+      @Override
+      public void onRetrievedFailed(Product product, int remained) {
         System.out.println("[FAILED] Product: " + productId + ", current: " + remained);
       }
     }));
@@ -89,20 +93,21 @@ public abstract class Shop implements CustomObservable {
     /* TODO:
      * output product name/quantity/money */
     final String customerName = customer.getId();
-    int totalPrice = 0;
-    Set<Product> products = new HashSet<>();
     Map<Product, Integer> productAmountMap = new HashMap<>();
-    products.addAll(order);
-    for ( Product product : order ) {
-      if(productAmountMap.get(product)==null) {
-        
-      }
+    int totalPrice = 0;
+    for (Product product : order) {
+      Integer current = productAmountMap.get(product);
+      int stock = current != null ? current : 0;
+      productAmountMap.put(product, ++stock);
       totalPrice += product.getUnitPrice();
     }
-    for ( Product product: products ) {
-      System.out.println(customerName + " buys " + productAmountMap.get(product) + " of " + product.getName());
-    }
-    System.out.println(" for " + totalPrice + "  dollars");
-    return order != null && !order.isEmpty();
+
+    System.out.println("發票");
+    System.out.println("customer: " + customerName);
+    System.out.println("products:");
+    productAmountMap.forEach(
+        (product, integer) -> System.out.println(product + ", amount: " + integer));
+    System.out.println("price: " + totalPrice);
+    return !order.isEmpty();
   }
 }
